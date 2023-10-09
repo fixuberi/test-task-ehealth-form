@@ -7,5 +7,8 @@ import { MaterialModule } from './material.module';
     CommonModule,
     MaterialModule
   ],
+  exports: [
+    MaterialModule
+  ]
 })
 export class CoreModule { }

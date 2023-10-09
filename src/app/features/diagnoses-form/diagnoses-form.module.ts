@@ -1,15 +1,25 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
+
+import { CoreModule } from '@core/core.module';
+
 import { DiagnosesFormComponent } from './components/diagnoses-form/diagnoses-form.component';
 import { DiagnosesFormRoutingModule } from './diagnoses-form-routing.module';
-import { CoreModule } from 'src/app/core/core.module';
+import { DiagnoseICPCService } from './services/diagnose-icpc.service';
 
 @NgModule({
   imports: [
     CommonModule,
     DiagnosesFormRoutingModule,
-    CoreModule
+    HttpClientModule,
+    CoreModule,
+    ReactiveFormsModule
   ],
-  declarations: [DiagnosesFormComponent]
+  declarations: [DiagnosesFormComponent],
+  providers: [
+    DiagnoseICPCService,
+  ]
 })
 export class DiagnosesFormModule { }

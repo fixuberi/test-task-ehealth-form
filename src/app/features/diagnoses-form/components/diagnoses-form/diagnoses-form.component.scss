@@ -1,0 +1,32 @@
+:host {
+  display: flex;
+  justify-content: center;
+
+  padding: 2em;
+}
+
+mat-card {
+ max-width: 1200px;
+ min-width: 800px;
+
+ padding: 2em;
+}
+
+.form {
+  padding-bottom: 2em;
+}
+
+.diagnoses {
+  &-row {
+    justify-content: space-between;
+    gap: 2em;
+
+    mat-form-field {
+      flex: 1
+    }
+  }
+}
+
+.generate-output-button {
+  padding: 1.5em;
+}
