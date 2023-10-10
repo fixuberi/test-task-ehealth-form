@@ -5,15 +5,14 @@
   padding: 2em;
 }
 
-mat-card {
+mat-card.wrapper {
  max-width: 1200px;
  min-width: 800px;
-
  padding: 2em;
-}
 
-.form {
-  padding-bottom: 2em;
+  display: flex;
+  flex-direction: column;
+  gap: 2em;
 }
 
 .diagnoses {
@@ -29,4 +28,10 @@ mat-card {
 
 .generate-output-button {
   padding: 1.5em;
+}
+
+pre {
+  overflow-y: auto;
+  max-height: 300px;
+  margin: 0;
 }

@@ -8,6 +8,7 @@ import { CoreModule } from '@core/core.module';
 import { DiagnosesFormComponent } from './components/diagnoses-form/diagnoses-form.component';
 import { DiagnosesFormRoutingModule } from './diagnoses-form-routing.module';
 import { DiagnoseICPCService } from './services/diagnose-icpc.service';
+import { ConditionsOutputJsonService } from './services/conditions-output-json.service';
 
 @NgModule({
   imports: [
@@ -20,6 +21,7 @@ import { DiagnoseICPCService } from './services/diagnose-icpc.service';
   declarations: [DiagnosesFormComponent],
   providers: [
     DiagnoseICPCService,
+    ConditionsOutputJsonService
   ]
 })
 export class DiagnosesFormModule { }

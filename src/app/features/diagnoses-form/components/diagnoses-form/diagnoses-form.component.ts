@@ -10,19 +10,20 @@ import {
   BehaviorSubject,
   Subject,
   debounceTime,
-  tap,
   switchMap,
   takeUntil,
   filter,
-  finalize,
   map,
 } from 'rxjs';
 
 import { dateFromFutureValidator } from '@core/validators/date-from-future.validator';
-import { realDiagnoseOrEmptyValidator as realDiagnoseOrEmptyStringValidator } from '@core/validators/real-diagnose.validator';
+import { realDiagnoseOrEmptyValidator } from '@core/validators/real-diagnose.validator';
 
-import { DiagnoseICPC } from '../../models/diagnose-icpc.model';
-import { DiagnoseICPCService } from '../../services/diagnose-icpc.service';
+import { DiagnoseICPC } from '@features/diagnoses-form/models/diagnose-icpc.model';
+import { DiagnoseICPCService } from '@features/diagnoses-form/services/diagnose-icpc.service';
+import { ConditionsOutput } from '@features/diagnoses-form/models/conditions-output.model';
+import { ConditionsOutputJsonService } from '@features/diagnoses-form/services/conditions-output-json.service';
+import { ConditionsForm } from '@features/diagnoses-form/models/conditions-form.model';
 
 @Component({
   selector: 'app-diagnoses-form',
@@ -31,18 +32,18 @@ import { DiagnoseICPCService } from '../../services/diagnose-icpc.service';
 })
 export class DiagnosesFormComponent implements OnInit, OnDestroy {
   form!: FormGroup;
-  output: any;
+  output?: ConditionsOutput;
 
   diagnoses$: BehaviorSubject<DiagnoseICPC[]> = new BehaviorSubject<
     DiagnoseICPC[]
   >([]);
-  isLoading$ = new BehaviorSubject<boolean>(false);
 
   private destroyed$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
-    private diagnoseDataService: DiagnoseICPCService
+    private diagnoseDataService: DiagnoseICPCService,
+    private conditionsOutputJsonService: ConditionsOutputJsonService
   ) {}
 
   get addedConditions(): FormArray {
@@ -60,25 +61,54 @@ export class DiagnosesFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.form = this.fb.group({
-      date: [null, [dateFromFutureValidator, Validators.required]],
-      conditions: this.fb.array([]),
-    });
-
+    this.setupForm();
     this.addConditionControls();
+  }
+
+  ngOnDestroy() {
+    this.destroyed$.next();
+    this.destroyed$.complete();
   }
 
   addDiagnose() {
     this.addConditionControls();
   }
 
-  generateOutput() {}
+  generateOutput() {
+    this.output = this.conditionsOutputJsonService.getConditionsOutput(
+      this.formValue
+    );
+  }
 
-  private addConditionControls() {
-    const controlsPair = this.fb.group({
-      diagnose: ['', [realDiagnoseOrEmptyStringValidator]],
+  diagnoseDisplayFn(option: DiagnoseICPC | null): string {
+    return option ? `${option.code} ${option.name}` : '';
+  }
+
+  private get formValue(): ConditionsForm {
+    const form = this.form.value as ConditionsForm;
+
+    return {
+      date: form.date,
+      conditions: form.conditions.filter((condition) => !!condition.diagnose),
+    };
+  }
+
+  private setupForm() {
+    this.form = this.fb.group({
+      date: [null, [dateFromFutureValidator, Validators.required]],
+      conditions: this.fb.array([]),
+    });
+  }
+
+  private buildDiagnoseWithNoteControls(): FormGroup {
+    return this.fb.group({
+      diagnose: ['', [realDiagnoseOrEmptyValidator]],
       note: [''],
     });
+  }
+
+  private addConditionControls() {
+    const controlsPair = this.buildDiagnoseWithNoteControls();
     this.addedConditions.push(controlsPair);
 
     const diagnoseControl = controlsPair.get('diagnose')!;
@@ -92,22 +122,11 @@ export class DiagnosesFormComponent implements OnInit, OnDestroy {
         map((query: string) => query.trim().toLowerCase()),
         filter((query) => query.length >= 3),
         debounceTime(300),
-        tap(() => this.isLoading$.next(true)),
         switchMap((value) => this.diagnoseDataService.getDiagnosesICPC2(value)),
-        takeUntil(this.destroyed$),
-        finalize(() => this.isLoading$.next(false))
+        takeUntil(this.destroyed$)
       )
       .subscribe((options) => {
         this.diagnoses$.next(options);
       });
-  }
-
-  diagnoseDisplayFn(option: DiagnoseICPC | null): string {
-    return option ? `${option.code} ${option.name}` : '';
-  }
-
-  ngOnDestroy() {
-    this.destroyed$.next();
-    this.destroyed$.complete();
   }
 }
