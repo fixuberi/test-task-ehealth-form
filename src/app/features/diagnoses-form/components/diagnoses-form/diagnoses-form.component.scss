@@ -6,9 +6,9 @@
 }
 
 mat-card.wrapper {
- max-width: 1200px;
- min-width: 800px;
- padding: 2em;
+  max-width: 1200px;
+  min-width: 800px;
+  padding: 2em;
 
   display: flex;
   flex-direction: column;
@@ -21,7 +21,7 @@ mat-card.wrapper {
     gap: 2em;
 
     mat-form-field {
-      flex: 1
+      flex: 1;
     }
   }
 }
@@ -30,8 +30,14 @@ mat-card.wrapper {
   padding: 1.5em;
 }
 
-pre {
-  overflow-y: auto;
-  max-height: 300px;
-  margin: 0;
+.output-wrapper {
+  .label {
+    font-weight: bold;
+  }
+
+  pre {
+    overflow-y: auto;
+    max-height: 300px;
+    margin: 0;
+  }
 }

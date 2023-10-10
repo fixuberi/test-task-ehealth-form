@@ -37,5 +37,8 @@
 
   <button class="generate-output-button" mat-stroked-button type="button"  color="primary" [disabled]="!form.valid" (click)="generateOutput()">Сформувати JSON</button>
 
-  <mat-card><pre>{{ output | json }}</pre></mat-card>
+  <div class="output-wrapper" *ngIf="output">
+    <h3 class="label">JSON:</h3>
+    <mat-card><pre>{{ output | json }}</pre></mat-card>
+  </div>
 </mat-card>
