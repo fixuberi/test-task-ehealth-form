@@ -15,17 +15,6 @@ mat-card.wrapper {
   gap: 2em;
 }
 
-.diagnoses {
-  &-row {
-    justify-content: space-between;
-    gap: 2em;
-
-    mat-form-field {
-      flex: 1;
-    }
-  }
-}
-
 .generate-output-button {
   padding: 1.5em;
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { generateGUIDFromId } from '@core/utils/guid-generator';
+import { generateGUIDFromId } from '@shared/utils/guid-generator';
 
 import {
   ConditionsForm,

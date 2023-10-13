@@ -1,0 +1,26 @@
+<form [formGroup]="form">
+  <h2>{{label}}</h2>
+  <div class="diagnoses" formArrayName="conditions" *ngFor="let control of addedConditions.controls; let i = index;">
+    <div [formGroupName]="i" class="row diagnoses-row">
+      <mat-form-field appearance="outline" class="condition-field">
+        <input matInput [matAutocomplete]="auto" formControlName="diagnose" placeholder="Діагноз">
+        <mat-icon matSuffix class="dropdown-icon">arrow_drop_down</mat-icon>
+
+        <mat-autocomplete #auto="matAutocomplete" [displayWith]="diagnoseDisplayFn">
+          <mat-option *ngIf="isLoadingOptions" disabled="true">Loading...</mat-option>
+          <mat-option *ngFor="let option of diagnosesOptions" [value]="option">{{option.code}}
+            {{option.name}}</mat-option>
+        </mat-autocomplete>
+
+        <mat-error *ngIf="control.get('diagnose')?.hasError('notRealDiagnose')">Оберіть діагноз зі списку</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="condition-field">
+        <input matInput formControlName="note" placeholder="Коментар">
+      </mat-form-field>
+    </div>
+  </div>
+
+  <button mat-button type="button" class="add-more-button" color="primary" *ngIf="isDisplayAddDiagnose" (click)="addDiagnose()">+ додати
+    ще</button>
+</form>

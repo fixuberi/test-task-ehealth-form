@@ -1,0 +1,20 @@
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 2em;
+
+  .add-more-button {
+    width: max-content;
+  }
+}
+
+.diagnoses {
+  &-row {
+    justify-content: space-between;
+    gap: 2em;
+
+    mat-form-field {
+      flex: 1;
+    }
+  }
+}

@@ -2,22 +2,17 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
   FormGroup,
   FormBuilder,
-  FormArray,
   Validators,
-  AbstractControl,
 } from '@angular/forms';
 import {
   BehaviorSubject,
   Subject,
-  debounceTime,
-  switchMap,
   takeUntil,
-  filter,
-  map,
+  take,
+  tap,
 } from 'rxjs';
 
-import { dateFromFutureValidator } from '@core/validators/date-from-future.validator';
-import { realDiagnoseOrEmptyValidator } from '@core/validators/real-diagnose.validator';
+import { dateFromFutureValidator } from 'src/app/shared/validators/date-from-future.validator';
 
 import { DiagnoseICPC } from '@features/diagnoses-form/models/diagnose-icpc.model';
 import { DiagnoseICPCService } from '@features/diagnoses-form/services/diagnose-icpc.service';
@@ -46,23 +41,8 @@ export class DiagnosesFormComponent implements OnInit, OnDestroy {
     private conditionsOutputJsonService: ConditionsOutputJsonService
   ) {}
 
-  get addedConditions(): FormArray {
-    return this.form.get('conditions') as FormArray;
-  }
-
-  get isDisplayAddDiagnose() {
-    const conditions = this.form?.value['conditions'];
-    const lastElementInConditions = conditions[conditions.length - 1];
-
-    return (
-      lastElementInConditions['diagnose'] !== null &&
-      typeof lastElementInConditions['diagnose'] === 'object'
-    );
-  }
-
   ngOnInit() {
     this.setupForm();
-    this.addConditionControls();
   }
 
   ngOnDestroy() {
@@ -70,63 +50,36 @@ export class DiagnosesFormComponent implements OnInit, OnDestroy {
     this.destroyed$.complete();
   }
 
-  addDiagnose() {
-    this.addConditionControls();
-  }
-
   generateOutput() {
+    if(!this.form.valid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
     this.output = this.conditionsOutputJsonService.getConditionsOutput(
       this.formValue
     );
   }
 
-  diagnoseDisplayFn(option: DiagnoseICPC | null): string {
-    return option ? `${option.code} ${option.name}` : '';
-  }
-
   private get formValue(): ConditionsForm {
-    const form = this.form.value as ConditionsForm;
-
-    return {
-      date: form.date,
-      conditions: form.conditions.filter((condition) => !!condition.diagnose),
-    };
+    return this.form.value as ConditionsForm;
   }
 
   private setupForm() {
     this.form = this.fb.group({
       date: [null, [dateFromFutureValidator, Validators.required]],
-      conditions: this.fb.array([]),
+      conditions: [[]],
     });
   }
 
-  private buildDiagnoseWithNoteControls(): FormGroup {
-    return this.fb.group({
-      diagnose: ['', [realDiagnoseOrEmptyValidator]],
-      note: [''],
-    });
-  }
+  private cancelPullingDiagnoses = new Subject<void>()
+  pullDiagnosesByQuery(querry: string) {
+    this.cancelPullingDiagnoses.next();
 
-  private addConditionControls() {
-    const controlsPair = this.buildDiagnoseWithNoteControls();
-    this.addedConditions.push(controlsPair);
-
-    const diagnoseControl = controlsPair.get('diagnose')!;
-    this.setupAutocompletePullingOptions(diagnoseControl);
-  }
-
-  private setupAutocompletePullingOptions(control: AbstractControl) {
-    control.valueChanges
-      .pipe(
-        filter((value) => typeof value === 'string'),
-        map((query: string) => query.trim().toLowerCase()),
-        filter((query) => query.length >= 3),
-        debounceTime(300),
-        switchMap((value) => this.diagnoseDataService.getDiagnosesICPC2(value)),
-        takeUntil(this.destroyed$)
-      )
-      .subscribe((options) => {
-        this.diagnoses$.next(options);
-      });
+    this.diagnoseDataService.getDiagnosesICPC2(querry).pipe(
+      takeUntil(this.cancelPullingDiagnoses.asObservable()),
+      take(1),
+      tap(options => this.diagnoses$.next(options))
+    ).subscribe()
   }
 }
