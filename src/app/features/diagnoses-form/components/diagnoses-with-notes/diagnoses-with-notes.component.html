@@ -4,6 +4,7 @@
     <div [formGroupName]="i" class="row diagnoses-row">
       <mat-form-field appearance="outline" class="condition-field">
         <input matInput [matAutocomplete]="auto" formControlName="diagnose" placeholder="Діагноз">
+        <mat-icon matSuffix class="dropdown-icon" (click)="removeDiagnoseWithForm(i)">close</mat-icon>
         <mat-icon matSuffix class="dropdown-icon">arrow_drop_down</mat-icon>
 
         <mat-autocomplete #auto="matAutocomplete" [displayWith]="diagnoseDisplayFn">

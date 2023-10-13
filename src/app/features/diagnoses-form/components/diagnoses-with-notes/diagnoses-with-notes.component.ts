@@ -97,6 +97,11 @@ export class DiagnosesWithNotesComponent
     this.addConditionControls();
   }
 
+  removeDiagnoseWithForm(controlIndex: number) {
+    this.addedConditions.removeAt(controlIndex);
+    this.onChange(this.conditionsValueWithPickedDiagnoses);
+  }
+
   writeValue(conditions: any[]): void {
     if (!conditions) return;
 
